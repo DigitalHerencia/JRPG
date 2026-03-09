@@ -24,9 +24,8 @@ func _process(delta: float) -> void:
 	move_cooldown_remaining = max(move_cooldown_remaining - delta, 0.0)
 	_attempt_grid_move()
 	_attempt_interact()
-
 	if Input.is_action_just_pressed("back"):
-		SceneRouter.goto("main_menu")
+		SceneRouter.change_scene_key("main_menu")
 
 func _attempt_grid_move() -> void:
 	if move_cooldown_remaining > 0.0:

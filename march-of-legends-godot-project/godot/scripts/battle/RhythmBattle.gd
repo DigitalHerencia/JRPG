@@ -210,7 +210,7 @@ func _finish_battle(won: bool) -> void:
 		result_label.text = "Result: Defeat. Max Combo %d | Accuracy %.1f%%" % [max_combo, _accuracy_ratio() * 100.0]
 
 	await get_tree().create_timer(2.2).timeout
-	SceneRouter.goto("campus")
+	SceneRouter.change_scene_key("campus")
 
 func _accuracy_ratio() -> float:
 	if total_notes <= 0:

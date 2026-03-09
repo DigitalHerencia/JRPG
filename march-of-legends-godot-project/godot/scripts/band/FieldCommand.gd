@@ -57,19 +57,19 @@ func _on_submit_pressed() -> void:
 		return
 
 	var selected_snapshot: Array[Vector2i] = selected_points.duplicate()
-	GameState.flags["field_command_selection"] = {
+	GameState.set_flag("field_command_selection", {
 		"formation_id": validation["formation_id"],
 		"formation_name": validation["formation_name"],
 		"selected_points": selected_snapshot,
 		"normalized_cell_set": validation["normalized_cell_set"],
 		"normalized_sequence": validation["normalized_sequence"]
-	}
+	})
 
 	info_label.text = "Formation locked: %s" % validation["formation_name"]
-	SceneRouter.goto("rhythm_battle")
+	SceneRouter.change_scene_key("rhythm_battle")
 
 func _on_cancel_pressed() -> void:
-	SceneRouter.goto("campus")
+	SceneRouter.change_scene_key("campus")
 
 func _validate_selected_formation() -> Dictionary:
 	var selected_set_key := _canonicalize_point_set(selected_points, ALLOW_ROTATION_MATCH)
@@ -83,10 +83,6 @@ func _validate_selected_formation() -> Dictionary:
 		var template_points: Array[Vector2i] = FORMATION_TEMPLATES[formation_id]["points"]
 		var template_set_key := _canonicalize_point_set(template_points, ALLOW_ROTATION_MATCH)
 		if selected_set_key != template_set_key:
-			continue
-
-		var template_sequence_key := _canonicalize_sequence(template_points, ALLOW_ROTATION_MATCH)
-		if selected_sequence_key != template_sequence_key and selected_set_key != template_set_key:
 			continue
 
 		return {

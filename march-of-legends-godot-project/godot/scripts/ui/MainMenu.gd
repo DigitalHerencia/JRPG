@@ -9,7 +9,7 @@ func _ready() -> void:
 	new_game_button.grab_focus()
 
 func _on_new_game_pressed() -> void:
-	SceneRouter.goto("campus")
+	SceneRouter.change_scene_key("campus")
 
 func _on_exit_pressed() -> void:
 	get_tree().quit()
