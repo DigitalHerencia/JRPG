@@ -108,11 +108,7 @@ func _current_scene_path() -> String:
 
 func _update_game_state(scene_path: String) -> void:
 	var route_key := _find_key_for_path(scene_path)
-	if GameState.has_method("set_current_scene_path"):
-		GameState.set_current_scene_path(scene_path, route_key)
-	else:
-		GameState.current_scene_path = scene_path
-		GameState.current_scene_key = route_key
+	GameState.set_current_scene_path(scene_path, route_key)
 	if route_key != "":
 		route_changed.emit(route_key)
 

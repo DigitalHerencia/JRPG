@@ -1,9 +1,14 @@
 extends Node
 
-const DEFAULT_PARTY := ["leo", "dr_major", "snare_kid"]
+signal state_changed(changed_keys: Array[String])
 
-var current_scene_key: String = "main_menu"
-var current_scene_path: String = "res://scenes/ui/MainMenu.tscn"
+const DEFAULT_PARTY := ["leo", "dr_major", "snare_kid"]
+const SAVE_DIR := "user://saves"
+const DEFAULT_SCENE_KEY := "main_menu"
+const DEFAULT_SCENE_PATH := "res://scenes/ui/MainMenu.tscn"
+
+var current_scene_key: String = DEFAULT_SCENE_KEY
+var current_scene_path: String = DEFAULT_SCENE_PATH
 var player_name: String = "Leo Crescendo"
 var party: Array[String] = DEFAULT_PARTY.duplicate()
 var flags: Dictionary = {}
@@ -15,13 +20,168 @@ var stats: Dictionary = {
 }
 
 func set_flag(flag_name: String, value := true) -> void:
+	var previous_value: Variant = flags.get(flag_name, null)
+	if previous_value == value and flags.has(flag_name):
+		return
 	flags[flag_name] = value
+	_emit_state_changed(["flags.%s" % flag_name])
 
 func has_flag(flag_name: String) -> bool:
 	return flags.get(flag_name, false)
 
+func set_stat(stat_name: String, value: Variant) -> void:
+	var had_stat := stats.has(stat_name)
+	var previous_value: Variant = stats.get(stat_name, null)
+	if had_stat and previous_value == value:
+		return
+	stats[stat_name] = value
+	_emit_state_changed(["stats.%s" % stat_name])
+
+func add_stat(stat_name: String, delta: float) -> void:
+	var previous_value: Variant = stats.get(stat_name, 0.0)
+	if not _is_number(previous_value):
+		push_error("Stat '%s' is not numeric." % stat_name)
+		return
+	var next_value: float = float(previous_value) + delta
+	set_stat(stat_name, next_value)
+
 func add_hype(amount: int) -> void:
-	stats["hype"] = stats.get("hype", 0) + amount
+	add_stat("hype", amount)
 
 func advance_week() -> void:
-	stats["semester_week"] = stats.get("semester_week", 1) + 1
+	add_stat("semester_week", 1)
+
+func set_current_scene_by_key(scene_key: String, scene_path: String = "") -> void:
+	var changed_keys: Array[String] = []
+	if current_scene_key != scene_key:
+		current_scene_key = scene_key
+		changed_keys.append("current_scene_key")
+	if scene_path != "" and current_scene_path != scene_path:
+		current_scene_path = scene_path
+		changed_keys.append("current_scene_path")
+	if not changed_keys.is_empty():
+		_emit_state_changed(changed_keys)
+
+func set_current_scene_path(scene_path: String, scene_key: String = "") -> void:
+	var changed_keys: Array[String] = []
+	if current_scene_path != scene_path:
+		current_scene_path = scene_path
+		changed_keys.append("current_scene_path")
+	if scene_key != "" and current_scene_key != scene_key:
+		current_scene_key = scene_key
+		changed_keys.append("current_scene_key")
+	if not changed_keys.is_empty():
+		_emit_state_changed(changed_keys)
+
+func get_current_scene_key() -> String:
+	return current_scene_key
+
+func get_current_scene_path() -> String:
+	return current_scene_path
+
+func to_dict() -> Dictionary:
+	return {
+		"current_scene_key": current_scene_key,
+		"current_scene_path": current_scene_path,
+		"player_name": player_name,
+		"party": party.duplicate(),
+		"flags": flags.duplicate(true),
+		"stats": stats.duplicate(true)
+	}
+
+func from_dict(data: Dictionary) -> void:
+	if not _validate_state_dict(data):
+		push_error("Invalid game state schema.")
+		return
+
+	current_scene_key = data["current_scene_key"]
+	current_scene_path = data["current_scene_path"]
+	player_name = data["player_name"]
+	party = (data["party"] as Array).duplicate()
+	flags = (data["flags"] as Dictionary).duplicate(true)
+	stats = (data["stats"] as Dictionary).duplicate(true)
+	_emit_state_changed([
+		"current_scene_key",
+		"current_scene_path",
+		"player_name",
+		"party",
+		"flags",
+		"stats"
+	])
+
+func save_to_slot(slot_name: String = "save_01") -> Error:
+	var save_path := _slot_path(slot_name)
+	var dir_error := DirAccess.make_dir_recursive_absolute(SAVE_DIR)
+	if dir_error != OK and dir_error != ERR_ALREADY_EXISTS:
+		return dir_error
+
+	var file := FileAccess.open(save_path, FileAccess.WRITE)
+	if file == null:
+		return FileAccess.get_open_error()
+
+	file.store_string(JSON.stringify(to_dict(), "\t"))
+	return OK
+
+func load_from_slot(slot_name: String = "save_01") -> Error:
+	var save_path := _slot_path(slot_name)
+	if not FileAccess.file_exists(save_path):
+		return ERR_FILE_NOT_FOUND
+
+	var file := FileAccess.open(save_path, FileAccess.READ)
+	if file == null:
+		return FileAccess.get_open_error()
+
+	var parsed: Variant = JSON.parse_string(file.get_as_text())
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return ERR_PARSE_ERROR
+
+	var parsed_dict := parsed as Dictionary
+	if not _validate_state_dict(parsed_dict):
+		return ERR_INVALID_DATA
+
+	from_dict(parsed_dict)
+	return OK
+
+func _slot_path(slot_name: String) -> String:
+	return "%s/%s.json" % [SAVE_DIR, slot_name]
+
+func _emit_state_changed(changed_keys: Array[String]) -> void:
+	if changed_keys.is_empty():
+		return
+	state_changed.emit(changed_keys)
+
+func _is_number(value: Variant) -> bool:
+	var value_type := typeof(value)
+	return value_type == TYPE_INT or value_type == TYPE_FLOAT
+
+func _validate_state_dict(data: Dictionary) -> bool:
+	var required_keys := [
+		"current_scene_key",
+		"current_scene_path",
+		"player_name",
+		"party",
+		"flags",
+		"stats"
+	]
+	for key in required_keys:
+		if not data.has(key):
+			return false
+
+	if typeof(data["current_scene_key"]) != TYPE_STRING:
+		return false
+	if typeof(data["current_scene_path"]) != TYPE_STRING:
+		return false
+	if typeof(data["player_name"]) != TYPE_STRING:
+		return false
+	if typeof(data["party"]) != TYPE_ARRAY:
+		return false
+	if typeof(data["flags"]) != TYPE_DICTIONARY:
+		return false
+	if typeof(data["stats"]) != TYPE_DICTIONARY:
+		return false
+
+	for member in data["party"]:
+		if typeof(member) != TYPE_STRING:
+			return false
+
+	return true
