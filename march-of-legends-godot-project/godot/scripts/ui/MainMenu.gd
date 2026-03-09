@@ -7,9 +7,9 @@ extends Control
 
 func _ready() -> void:
 	start_button.pressed.connect(_on_start_pressed)
-	field_button.pressed.connect(func(): SceneRouter.goto("field_command"))
-	rhythm_button.pressed.connect(func(): SceneRouter.goto("rhythm_battle"))
+	field_button.pressed.connect(func(): SceneRouter.change_scene_key("field_command"))
+	rhythm_button.pressed.connect(func(): SceneRouter.change_scene_key("rhythm_battle"))
 	quit_button.pressed.connect(func(): get_tree().quit())
 
 func _on_start_pressed() -> void:
-	SceneRouter.goto("campus")
+	SceneRouter.change_scene_key("campus")

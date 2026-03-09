@@ -15,9 +15,9 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("interact"):
 		_update_text("Mascot says: Freshman, destiny smells faintly like valve oil.")
 	if Input.is_action_just_pressed("ui_accept"):
-		SceneRouter.goto("field_command")
+		SceneRouter.change_scene_key("field_command")
 	if Input.is_action_just_pressed("back"):
-		SceneRouter.goto("main_menu")
+		SceneRouter.change_scene_key("main_menu")
 
 func _update_text(override_text: String = "") -> void:
 	if override_text != "":

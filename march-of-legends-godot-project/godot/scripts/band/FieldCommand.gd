@@ -23,9 +23,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		info_label.text = "Formation: %s | Press Enter again for rhythm battle" % result
 		if selected_points.size() >= 4:
 			GameState.add_hype(5)
-			SceneRouter.goto("rhythm_battle")
+			SceneRouter.change_scene_key("rhythm_battle")
 	if Input.is_action_just_pressed("back"):
-		SceneRouter.goto("campus")
+		SceneRouter.change_scene_key("campus")
 
 func _draw() -> void:
 	for point in selected_points:

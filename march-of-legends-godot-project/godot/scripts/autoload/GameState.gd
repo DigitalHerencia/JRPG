@@ -3,6 +3,7 @@ extends Node
 const DEFAULT_PARTY := ["leo", "dr_major", "snare_kid"]
 
 var current_scene_key: String = "main_menu"
+var current_scene_path: String = "res://scenes/ui/MainMenu.tscn"
 var player_name: String = "Leo Crescendo"
 var party: Array[String] = DEFAULT_PARTY.duplicate()
 var flags: Dictionary = {}

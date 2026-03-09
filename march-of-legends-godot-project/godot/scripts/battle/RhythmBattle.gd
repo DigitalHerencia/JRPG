@@ -20,7 +20,7 @@ func _process(delta: float) -> void:
 	_update_labels()
 	_check_inputs()
 	if Input.is_action_just_pressed("back"):
-		SceneRouter.goto("campus")
+		SceneRouter.change_scene_key("campus")
 
 func _check_inputs() -> void:
 	if index >= sequence.size():
@@ -42,7 +42,7 @@ func _end_battle(won := false) -> void:
 	else:
 		info_label.text = "Rehearsal over. Your embouchure survives. Returning to campus..."
 	await get_tree().create_timer(1.4).timeout
-	SceneRouter.goto("campus")
+	SceneRouter.change_scene_key("campus")
 
 func _update_labels() -> void:
 	combo_label.text = "Combo: %d" % combo

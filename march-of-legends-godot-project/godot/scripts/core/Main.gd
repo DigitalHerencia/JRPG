@@ -2,4 +2,4 @@ extends Node
 
 func _ready() -> void:
 	# Bootstrap into the main menu.
-	SceneRouter.goto("main_menu")
+	SceneRouter.change_scene_key("main_menu")
