@@ -123,3 +123,12 @@ Only after movement, encounters, and UI feel real.
 
 ### Polished sprite sheets last
 Do not waste three days lovingly drawing a tuba before collision works.
+
+
+## Agent automation
+
+### `scripts/codex/`
+Deterministic repository checks used by Codex before and after changes.
+
+### `Makefile` (repo root)
+Standard command entry points for agent checks (`make codex-audit`).
