@@ -28,3 +28,19 @@ offset_top = 24.0
 offset_right = 1100.0
 offset_bottom = 56.0
 text = "Field Command"
+
+[node name="SubmitButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 24.0
+offset_top = 640.0
+offset_right = 224.0
+offset_bottom = 684.0
+text = "Submit"
+
+[node name="CancelButton" type="Button" parent="."]
+unique_name_in_owner = true
+offset_left = 240.0
+offset_top = 640.0
+offset_right = 440.0
+offset_bottom = 684.0
+text = "Cancel"
