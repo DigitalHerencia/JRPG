@@ -13,3 +13,10 @@ func goto(route_key: String) -> void:
 		return
 	GameState.current_scene_key = route_key
 	get_tree().change_scene_to_file(routes[route_key])
+
+
+func change_scene(scene_path: String) -> void:
+	if scene_path == "":
+		push_error("Scene path cannot be empty")
+		return
+	get_tree().change_scene_to_file(scene_path)
