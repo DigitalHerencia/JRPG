@@ -20,3 +20,7 @@ Playable vertical slice:
 5. complete a simple line formation
 6. trigger a rhythm duel
 7. win and return to campus
+
+## Content data layout
+- Primary content source is `res://content/*.json` (characters, formations, skills, levels).
+- `res://data/json/*.json` is treated as a legacy alias path for migration compatibility by `ContentDB` and emits warnings when used.
