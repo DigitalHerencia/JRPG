@@ -1,15 +1,15 @@
 extends Control
 
-@onready var start_button: Button = %StartButton
-@onready var field_button: Button = %FieldButton
-@onready var rhythm_button: Button = %RhythmButton
-@onready var quit_button: Button = %QuitButton
+@onready var new_game_button: Button = %NewGameButton
+@onready var exit_button: Button = %ExitButton
 
 func _ready() -> void:
-	start_button.pressed.connect(_on_start_pressed)
-	field_button.pressed.connect(func(): SceneRouter.goto("field_command"))
-	rhythm_button.pressed.connect(func(): SceneRouter.goto("rhythm_battle"))
-	quit_button.pressed.connect(func(): get_tree().quit())
+	new_game_button.pressed.connect(_on_new_game_pressed)
+	exit_button.pressed.connect(_on_exit_pressed)
+	new_game_button.grab_focus()
 
-func _on_start_pressed() -> void:
+func _on_new_game_pressed() -> void:
 	SceneRouter.goto("campus")
+
+func _on_exit_pressed() -> void:
+	get_tree().quit()
