@@ -1,0 +1,7 @@
+[
+  {"id": "clean_tone", "character_id": "leo", "branch": "precision", "tier": 1, "effect": "accuracy_up"},
+  {"id": "brass_blast", "character_id": "leo", "branch": "power", "tier": 1, "effect": "damage_single"},
+  {"id": "sync_step", "character_id": "leo", "branch": "precision", "tier": 2, "effect": "formation_bonus"},
+  {"id": "hype_surge", "character_id": "snare_kid", "branch": "chaos", "tier": 1, "effect": "combo_gain"},
+  {"id": "improv_break", "character_id": "leo", "branch": "jazz", "tier": 3, "effect": "freestyle_window"}
+]

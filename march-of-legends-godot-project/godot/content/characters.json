@@ -1,0 +1,34 @@
+[
+  {
+    "id": "leo",
+    "name": "Leo Crescendo",
+    "section": "brass",
+    "instrument": "trombone",
+    "role": "protagonist",
+    "arc": "freshman prodigy to jazz improviser"
+  },
+  {
+    "id": "dr_major",
+    "name": "Ari Cadenza",
+    "section": "conductors",
+    "instrument": "baton",
+    "role": "mentor",
+    "arc": "perfectionist leader learning trust"
+  },
+  {
+    "id": "snare_kid",
+    "name": "Riff Ramon",
+    "section": "percussion",
+    "instrument": "snare",
+    "role": "chaos gremlin ally",
+    "arc": "recklessness into reliability"
+  },
+  {
+    "id": "mascot",
+    "name": "Pistol Pete Jr.",
+    "section": "myth",
+    "instrument": "crowd control",
+    "role": "mascot guardian",
+    "arc": "joke character who is also lore nuke"
+  }
+]
