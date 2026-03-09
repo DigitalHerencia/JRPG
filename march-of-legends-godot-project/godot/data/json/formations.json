@@ -1,0 +1,26 @@
+[
+  {
+    "id": "line",
+    "name": "Line Formation",
+    "effect": "attack_up",
+    "description": "Clean horizontal pressure. Good for disciplined openings."
+  },
+  {
+    "id": "column",
+    "name": "Column Formation",
+    "effect": "defense_up",
+    "description": "Dense vertical alignment. Feels militarily suspicious."
+  },
+  {
+    "id": "box",
+    "name": "Box Formation",
+    "effect": "heal",
+    "description": "Contained, balanced, weirdly comforting."
+  },
+  {
+    "id": "chaos",
+    "name": "Jazz Sigil",
+    "effect": "random_buff",
+    "description": "No one knows what this does, including fate."
+  }
+]

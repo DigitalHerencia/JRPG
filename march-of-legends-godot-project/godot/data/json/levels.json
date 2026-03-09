@@ -1,0 +1,5 @@
+[
+  {"id": "campus_quad", "name": "Campus Quad", "type": "hub", "boss": "none"},
+  {"id": "practice_field", "name": "Practice Field", "type": "formation", "boss": "section_leaders"},
+  {"id": "pep_rally", "name": "Pep Rally Showdown", "type": "rhythm", "boss": "techno_band"}
+]
