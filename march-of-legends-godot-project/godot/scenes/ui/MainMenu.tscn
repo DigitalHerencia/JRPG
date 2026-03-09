@@ -28,8 +28,7 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="Panel/VBox"]
 layout_mode = 2
-text = "MARCH OF LEGENDS
-FIRST CHAIR"
+text = "MARCH OF LEGENDS\nFIRST CHAIR"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="Panel/VBox"]
@@ -37,22 +36,16 @@ layout_mode = 2
 text = "A marching band JRPG prototype scaffold"
 horizontal_alignment = 1
 
-[node name="StartButton" type="Button" parent="Panel/VBox"]
+[node name="NewGameButton" type="Button" parent="Panel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Start Campus Slice"
+focus_neighbor_bottom = NodePath("../ExitButton")
+focus_next = NodePath("../ExitButton")
+text = "New Game"
 
-[node name="FieldButton" type="Button" parent="Panel/VBox"]
+[node name="ExitButton" type="Button" parent="Panel/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Jump to Field Command"
-
-[node name="RhythmButton" type="Button" parent="Panel/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Jump to Rhythm Battle"
-
-[node name="QuitButton" type="Button" parent="Panel/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Quit"
+focus_neighbor_top = NodePath("../NewGameButton")
+focus_previous = NodePath("../NewGameButton")
+text = "Exit"
