@@ -1,5 +1,7 @@
 extends Node
 
+signal route_changed(route_key: String)
+
 var routes := {
 	"main_menu": "res://scenes/ui/MainMenu.tscn",
 	"campus": "res://scenes/world/Campus.tscn",
@@ -12,4 +14,5 @@ func goto(route_key: String) -> void:
 		push_error("Unknown route: %s" % route_key)
 		return
 	GameState.current_scene_key = route_key
+	route_changed.emit(route_key)
 	get_tree().change_scene_to_file(routes[route_key])
