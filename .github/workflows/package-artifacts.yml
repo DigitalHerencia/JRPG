@@ -1,0 +1,37 @@
+name: Package Artifacts
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: package-artifacts-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Create distribution directory
+        run: mkdir -p dist
+
+      - name: Archive Godot project
+        run: zip -r dist/march-of-legends-godot-project.zip march-of-legends-godot-project
+
+      - name: Archive docs
+        run: zip -r dist/march-of-legends-docs.zip march-of-legends-docs
+
+      - name: Upload packaged artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: march-of-legends-packages
+          path: dist/*.zip

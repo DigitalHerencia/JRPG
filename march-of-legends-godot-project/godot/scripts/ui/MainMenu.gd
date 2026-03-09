@@ -9,6 +9,7 @@ func _ready() -> void:
 	new_game_button.grab_focus()
 
 func _on_new_game_pressed() -> void:
+	GameState.reset_to_defaults()
 	SceneRouter.change_scene_key("campus")
 
 func _on_exit_pressed() -> void:

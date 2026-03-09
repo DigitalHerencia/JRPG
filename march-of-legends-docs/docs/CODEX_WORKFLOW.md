@@ -18,6 +18,9 @@ This catches:
 - malformed or missing JSON content files,
 - missing scene script references,
 - broken autoload script targets.
+- missing GitHub community standards files,
+- tracked local-only packaging/import paths.
+- CI mirrors these checks in `.github/workflows/codex-audit.yml`; keep local and CI audit behavior aligned.
 
 ### 3) Implement change
 - Keep functions small and explicit.
@@ -27,7 +30,13 @@ This catches:
 ### 4) Verify
 Run:
 - `make codex-audit`
+- Windows fallback:
+  - `python scripts/codex/audit_repo.py --check json`
+  - `python scripts/codex/audit_repo.py --check scenes`
+  - `python scripts/codex/audit_repo.py --check github`
+  - `python scripts/codex/audit_repo.py --check hygiene`
 - any feature-specific checks introduced by the change.
+- if autoload behavior changes, re-check `docs/AUTOLOAD_CONTRACTS.md` and update it in the same change.
 
 ### 5) Delivery format
 Every delivery should include:

@@ -96,6 +96,8 @@ Music and SFX routing.
 ### `ContentDB.gd`
 Loads JSON content into memory.
 
+Autoload contracts and signal expectations are documented in `docs/AUTOLOAD_CONTRACTS.md`.
+
 ## Data folders
 
 ### `data/json/characters.json`
@@ -132,3 +134,12 @@ Deterministic repository checks used by Codex before and after changes.
 
 ### `Makefile` (repo root)
 Standard command entry points for agent checks (`make codex-audit`).
+
+### `.github/workflows/codex-audit.yml`
+Runs the repository audit checks on pull requests and pushes to `main`.
+
+### `.github/workflows/package-artifacts.yml`
+Packages the Godot project and docs as downloadable GitHub workflow artifacts for tagged builds and manual release prep.
+
+### GitHub community files
+Root-level contribution, security, and conduct docs plus issue and PR templates define the expected repository workflow for contributors.

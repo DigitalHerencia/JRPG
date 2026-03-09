@@ -1,6 +1,6 @@
-.PHONY: codex-audit codex-json codex-scenes
+.PHONY: codex-audit codex-json codex-scenes codex-github codex-hygiene
 
-codex-audit: codex-json codex-scenes
+codex-audit: codex-json codex-scenes codex-github codex-hygiene
 	@echo "[ok] codex audit completed"
 
 codex-json:
@@ -8,3 +8,9 @@ codex-json:
 
 codex-scenes:
 	python3 scripts/codex/audit_repo.py --check scenes
+
+codex-github:
+	python3 scripts/codex/audit_repo.py --check github
+
+codex-hygiene:
+	python3 scripts/codex/audit_repo.py --check hygiene

@@ -21,3 +21,9 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local packaging and import workspaces
+ZIPS/
+march-of-legends-notion-import/
+march-of-legends-starter-package/
+march-of-legends-godot-project/godot/.gitignore

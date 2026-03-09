@@ -1,36 +1,19 @@
 extends Control
 
-const LANE_COUNT := 4
+const LEVEL_ID := "pep_rally"
+const DEFAULT_LANE_COUNT := 4
 const LANE_WIDTH := 168.0
 const LANE_GAP := 16.0
 const NOTE_WIDTH := 128.0
 const NOTE_HEIGHT := 20.0
-const APPROACH_TIME := 1.8
-const MISS_WINDOW := 0.20
-const PERFECT_WINDOW := 0.06
-const GOOD_WINDOW := 0.12
+const DEFAULT_APPROACH_TIME := 1.8
+const DEFAULT_MISS_WINDOW := 0.20
+const DEFAULT_PERFECT_WINDOW := 0.06
+const DEFAULT_GOOD_WINDOW := 0.12
 const SCORE_PERFECT := 1000
 const SCORE_GOOD := 500
 const SCORE_MISS := 0
 const LANE_ACTIONS := ["rhythm_1", "rhythm_2", "rhythm_3", "rhythm_4"]
-const CHART_NOTES := [
-	{"lane": 0, "hit_time": 1.50},
-	{"lane": 1, "hit_time": 2.00},
-	{"lane": 2, "hit_time": 2.50},
-	{"lane": 3, "hit_time": 3.00},
-	{"lane": 0, "hit_time": 3.35},
-	{"lane": 2, "hit_time": 3.80},
-	{"lane": 1, "hit_time": 4.20},
-	{"lane": 3, "hit_time": 4.70},
-	{"lane": 0, "hit_time": 5.20},
-	{"lane": 1, "hit_time": 5.65},
-	{"lane": 2, "hit_time": 6.10},
-	{"lane": 3, "hit_time": 6.55},
-	{"lane": 2, "hit_time": 7.00},
-	{"lane": 1, "hit_time": 7.35},
-	{"lane": 0, "hit_time": 7.80},
-	{"lane": 3, "hit_time": 8.35}
-]
 
 @onready var info_label: Label = %InfoLabel
 @onready var score_label: Label = %ScoreLabel
@@ -47,6 +30,13 @@ var battle_time := 0.0
 var battle_complete := false
 var total_notes := 0
 
+var lane_count := DEFAULT_LANE_COUNT
+var approach_time := DEFAULT_APPROACH_TIME
+var miss_window := DEFAULT_MISS_WINDOW
+var perfect_window := DEFAULT_PERFECT_WINDOW
+var good_window := DEFAULT_GOOD_WINDOW
+var chart_notes: Array[Dictionary] = []
+
 var score := 0
 var combo := 0
 var max_combo := 0
@@ -55,6 +45,7 @@ var good_count := 0
 var miss_count := 0
 
 func _ready() -> void:
+	_load_rhythm_config()
 	_build_chart()
 	_update_labels()
 
@@ -73,27 +64,84 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if battle_complete:
 		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		var lane := _lane_from_keycode(event.keycode)
-		if lane != -1:
-			_judge_lane_input(lane)
-			get_viewport().set_input_as_handled()
-			return
 	for lane_index in LANE_ACTIONS.size():
 		if event.is_action_pressed(LANE_ACTIONS[lane_index]):
 			_judge_lane_input(lane_index)
 			get_viewport().set_input_as_handled()
 			return
 
+func _load_rhythm_config() -> void:
+	chart_notes.clear()
+	var level_data := ContentDB.get_level(LEVEL_ID)
+	if level_data.is_empty():
+		_set_default_rhythm_config()
+		info_label.text = "Using fallback rhythm config."
+		return
+
+	var rhythm_config = level_data.get("rhythm", {})
+	if typeof(rhythm_config) != TYPE_DICTIONARY:
+		_set_default_rhythm_config()
+		info_label.text = "Invalid rhythm config. Using fallback."
+		return
+
+	lane_count = clampi(int(rhythm_config.get("lanes", DEFAULT_LANE_COUNT)), 1, LANE_ACTIONS.size())
+	approach_time = float(rhythm_config.get("approach_time", DEFAULT_APPROACH_TIME))
+	miss_window = float(rhythm_config.get("miss_window", DEFAULT_MISS_WINDOW))
+	perfect_window = float(rhythm_config.get("perfect_window", DEFAULT_PERFECT_WINDOW))
+	good_window = float(rhythm_config.get("good_window", DEFAULT_GOOD_WINDOW))
+
+	var raw_chart = rhythm_config.get("chart_notes", [])
+	if typeof(raw_chart) != TYPE_ARRAY or raw_chart.is_empty():
+		_set_default_rhythm_config()
+		info_label.text = "Missing rhythm chart. Using fallback."
+		return
+
+	for note in raw_chart:
+		if typeof(note) != TYPE_DICTIONARY:
+			continue
+		chart_notes.append({
+			"lane": int(note.get("lane", 0)),
+			"hit_time": float(note.get("hit_time", 0.0))
+		})
+
+	if chart_notes.is_empty():
+		_set_default_rhythm_config()
+		info_label.text = "No valid rhythm notes. Using fallback."
+
+func _set_default_rhythm_config() -> void:
+	lane_count = DEFAULT_LANE_COUNT
+	approach_time = DEFAULT_APPROACH_TIME
+	miss_window = DEFAULT_MISS_WINDOW
+	perfect_window = DEFAULT_PERFECT_WINDOW
+	good_window = DEFAULT_GOOD_WINDOW
+	chart_notes = [
+		{"lane": 0, "hit_time": 1.50},
+		{"lane": 1, "hit_time": 2.00},
+		{"lane": 2, "hit_time": 2.50},
+		{"lane": 3, "hit_time": 3.00},
+		{"lane": 0, "hit_time": 3.35},
+		{"lane": 2, "hit_time": 3.80},
+		{"lane": 1, "hit_time": 4.20},
+		{"lane": 3, "hit_time": 4.70},
+		{"lane": 0, "hit_time": 5.20},
+		{"lane": 1, "hit_time": 5.65},
+		{"lane": 2, "hit_time": 6.10},
+		{"lane": 3, "hit_time": 6.55},
+		{"lane": 2, "hit_time": 7.00},
+		{"lane": 1, "hit_time": 7.35},
+		{"lane": 0, "hit_time": 7.80},
+		{"lane": 3, "hit_time": 8.35}
+	]
+
 func _build_chart() -> void:
 	scheduled_notes.clear()
 	next_spawn_index = 0
-	for entry in CHART_NOTES:
-		var lane_index: int = clampi(int(entry.get("lane", 0)), 0, LANE_COUNT - 1)
+	for entry in chart_notes:
+		var lane_index: int = clampi(int(entry.get("lane", 0)), 0, lane_count - 1)
 		var hit_time: float = float(entry.get("hit_time", 0.0))
 		scheduled_notes.append({
 			"lane_index": lane_index,
-			"spawn_time": maxf(hit_time - APPROACH_TIME, 0.0),
+			"spawn_time": maxf(hit_time - approach_time, 0.0),
 			"hit_time": hit_time,
 			"consumed": false,
 			"spawned": false,
@@ -123,7 +171,7 @@ func _move_active_notes() -> void:
 		if note_node == null:
 			continue
 		var hit_time: float = note_data["hit_time"]
-		var progress := clampf(1.0 - ((hit_time - battle_time) / APPROACH_TIME), 0.0, 1.2)
+		var progress := clampf(1.0 - ((hit_time - battle_time) / approach_time), 0.0, 1.2)
 		note_node.position = _note_position(int(note_data["lane_index"]), progress)
 
 func _check_missed_notes() -> void:
@@ -132,7 +180,7 @@ func _check_missed_notes() -> void:
 		if note_data["consumed"]:
 			continue
 		var hit_time: float = note_data["hit_time"]
-		if battle_time - hit_time > MISS_WINDOW:
+		if battle_time - hit_time > miss_window:
 			_consume_note(i, "miss")
 
 func _judge_lane_input(lane_index: int) -> void:
@@ -145,7 +193,7 @@ func _judge_lane_input(lane_index: int) -> void:
 		if int(note_data["lane_index"]) != lane_index:
 			continue
 		var timing_delta := absf(float(note_data["hit_time"]) - battle_time)
-		if timing_delta <= MISS_WINDOW and timing_delta < best_timing:
+		if timing_delta <= miss_window and timing_delta < best_timing:
 			best_timing = timing_delta
 			candidate_index = i
 	if candidate_index == -1:
@@ -153,9 +201,9 @@ func _judge_lane_input(lane_index: int) -> void:
 		miss_count += 1
 		info_label.text = "Lane %d stray tap." % (lane_index + 1)
 		return
-	if best_timing <= PERFECT_WINDOW:
+	if best_timing <= perfect_window:
 		_consume_note(candidate_index, "perfect")
-	elif best_timing <= GOOD_WINDOW:
+	elif best_timing <= good_window:
 		_consume_note(candidate_index, "good")
 	else:
 		_consume_note(candidate_index, "miss")
@@ -222,20 +270,7 @@ func _update_labels() -> void:
 	score_label.text = "Score: %d" % score
 	combo_label.text = "Combo: %d" % combo
 	accuracy_label.text = "Perfect: %d | Good: %d | Miss: %d" % [perfect_count, good_count, miss_count]
-	timer_label.text = "Time: %.2f" % battle_time
-
-func _lane_from_keycode(keycode: Key) -> int:
-	match keycode:
-		KEY_A:
-			return 0
-		KEY_S:
-			return 1
-		KEY_D:
-			return 2
-		KEY_F:
-			return 3
-		_:
-			return -1
+	timer_label.text = "Time: %.2f | Windows P %.2f / G %.2f / M %.2f" % [battle_time, perfect_window, good_window, miss_window]
 
 func _note_position(lane_index: int, progress: float) -> Vector2:
 	var lane_start_x := lane_index * (LANE_WIDTH + LANE_GAP)

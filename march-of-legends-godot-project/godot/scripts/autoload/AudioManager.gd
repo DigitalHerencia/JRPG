@@ -36,15 +36,16 @@ func play_music(name: String, fade_in_sec := 0.5) -> void:
 		push_warning("AudioManager missing music key: %s" % name)
 		return
 
-	var target_volume_db := music_player.volume_db
+	var target_volume_db := 0.0
 	if music_player.stream == stream and music_player.playing:
-		if target_volume_db <= MIN_DB:
-			_tween_music_volume(0.0, target_volume_db)
+		if music_player.volume_db < target_volume_db:
+			_tween_music_volume(max(fade_in_sec, 0.0), target_volume_db)
 		return
 
-	stop_music(fade_in_sec)
+	if _music_tween != null and _music_tween.is_running():
+		_music_tween.kill()
 	music_player.stream = stream
-	music_player.volume_db = MIN_DB
+	music_player.volume_db = MIN_DB if fade_in_sec > 0.0 else target_volume_db
 	music_player.play()
 	_tween_music_volume(max(fade_in_sec, 0.0), target_volume_db)
 

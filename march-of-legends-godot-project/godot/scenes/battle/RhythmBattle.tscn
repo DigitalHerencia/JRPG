@@ -56,7 +56,7 @@ text = "Perfect: 0 | Good: 0 | Miss: 0"
 unique_name_in_owner = true
 offset_left = 48.0
 offset_top = 180.0
-offset_right = 320.0
+offset_right = 760.0
 offset_bottom = 212.0
 text = "Time: 0.0"
 
@@ -108,7 +108,7 @@ offset_left = 280.0
 offset_top = 700.0
 offset_right = 1080.0
 offset_bottom = 740.0
-text = "Hit lanes with A/S/D/F or mapped rhythm actions. Esc returns to campus."
+text = "Hit lanes with mapped rhythm actions: A/S/D/F or J/K/L/;. Esc returns to campus."
 
 [node name="ResultLabel" type="Label" parent="."]
 unique_name_in_owner = true

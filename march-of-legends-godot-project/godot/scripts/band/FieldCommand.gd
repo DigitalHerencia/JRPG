@@ -3,18 +3,6 @@ extends Node2D
 const CELL_SIZE := 32
 const ALLOW_ROTATION_MATCH := true
 
-const FORMATION_TEMPLATES := {
-	"line": {
-		"points": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0)]
-	},
-	"column": {
-		"points": [Vector2i(0, 0), Vector2i(0, 1), Vector2i(0, 2), Vector2i(0, 3)]
-	},
-	"box": {
-		"points": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)]
-	}
-}
-
 @onready var info_label: Label = %InfoLabel
 @onready var grid: ColorRect = %Grid
 @onready var submit_button: Button = %SubmitButton
@@ -32,7 +20,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		var local_pos := grid.get_local_mouse_position()
 		if Rect2(Vector2.ZERO, grid.size).has_point(local_pos):
 			var cell := Vector2i(floor(local_pos.x / CELL_SIZE), floor(local_pos.y / CELL_SIZE))
-			if not selected_points.has(cell):
+			if selected_points.has(cell):
+				info_label.text = "Cell already selected. Submit or choose another cell."
+			else:
 				selected_points.append(cell)
 				queue_redraw()
 				_refresh_label()
@@ -75,12 +65,14 @@ func _validate_selected_formation() -> Dictionary:
 	var selected_set_key := _canonicalize_point_set(selected_points, ALLOW_ROTATION_MATCH)
 	var selected_sequence_key := _canonicalize_sequence(selected_points, ALLOW_ROTATION_MATCH)
 
-	for formation_id in FORMATION_TEMPLATES.keys():
-		var formation_record := ContentDB.get_formation(formation_id)
-		if formation_record.is_empty():
+	for formation_record in ContentDB.get_formations():
+		var formation_id := str(formation_record.get("id", ""))
+		if formation_id == "":
 			continue
 
-		var template_points: Array[Vector2i] = FORMATION_TEMPLATES[formation_id]["points"]
+		var template_points := _points_from_pattern(formation_record.get("pattern", []))
+		if template_points.is_empty():
+			continue
 		var template_set_key := _canonicalize_point_set(template_points, ALLOW_ROTATION_MATCH)
 		if selected_set_key != template_set_key:
 			continue
@@ -98,6 +90,18 @@ func _validate_selected_formation() -> Dictionary:
 		"is_valid": false,
 		"message": "pattern does not match any known formation"
 	}
+
+func _points_from_pattern(raw_pattern: Variant) -> Array[Vector2i]:
+	if typeof(raw_pattern) != TYPE_ARRAY:
+		return []
+	var points: Array[Vector2i] = []
+	for point in raw_pattern:
+		if typeof(point) != TYPE_DICTIONARY:
+			return []
+		if not point.has("x") or not point.has("y"):
+			return []
+		points.append(Vector2i(int(point["x"]), int(point["y"])))
+	return points
 
 func _canonicalize_point_set(points: Array[Vector2i], allow_rotation: bool) -> String:
 	if points.is_empty():
@@ -173,4 +177,4 @@ func _serialize_sequence(points: Array) -> String:
 	return "|".join(out)
 
 func _refresh_label() -> void:
-	info_label.text = "Click cells to place marchers. Submit validates formation. Cancel returns to campus. Cells: %d" % selected_points.size()
+	info_label.text = "Click cells to place marchers. Enter submits, Esc cancels. Cells: %d" % selected_points.size()

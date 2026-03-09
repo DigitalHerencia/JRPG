@@ -6,18 +6,31 @@ const DEFAULT_PARTY := ["leo", "dr_major", "snare_kid"]
 const SAVE_DIR := "user://saves"
 const DEFAULT_SCENE_KEY := "main_menu"
 const DEFAULT_SCENE_PATH := "res://scenes/ui/MainMenu.tscn"
+const SERIALIZED_TYPE_KEY := "__type"
+const SERIALIZED_VECTOR2I := "Vector2i"
 
 var current_scene_key: String = DEFAULT_SCENE_KEY
 var current_scene_path: String = DEFAULT_SCENE_PATH
 var player_name: String = "Leo Crescendo"
 var party: Array[String] = DEFAULT_PARTY.duplicate()
 var flags: Dictionary = {}
-var stats: Dictionary = {
-	"hype": 0,
-	"discipline": 1,
-	"improv": 0,
-	"semester_week": 1
-}
+var stats: Dictionary = _default_stats()
+
+func reset_to_defaults() -> void:
+	current_scene_key = DEFAULT_SCENE_KEY
+	current_scene_path = DEFAULT_SCENE_PATH
+	player_name = "Leo Crescendo"
+	party = DEFAULT_PARTY.duplicate()
+	flags = {}
+	stats = _default_stats()
+	_emit_state_changed([
+		"current_scene_key",
+		"current_scene_path",
+		"player_name",
+		"party",
+		"flags",
+		"stats"
+	])
 
 func set_flag(flag_name: String, value := true) -> void:
 	var previous_value: Variant = flags.get(flag_name, null)
@@ -85,8 +98,8 @@ func to_dict() -> Dictionary:
 		"current_scene_path": current_scene_path,
 		"player_name": player_name,
 		"party": party.duplicate(),
-		"flags": flags.duplicate(true),
-		"stats": stats.duplicate(true)
+		"flags": _serialize_value(flags),
+		"stats": _serialize_value(stats)
 	}
 
 func from_dict(data: Dictionary) -> void:
@@ -98,8 +111,8 @@ func from_dict(data: Dictionary) -> void:
 	current_scene_path = data["current_scene_path"]
 	player_name = data["player_name"]
 	party = (data["party"] as Array).duplicate()
-	flags = (data["flags"] as Dictionary).duplicate(true)
-	stats = (data["stats"] as Dictionary).duplicate(true)
+	flags = _deserialize_value((data["flags"] as Dictionary).duplicate(true)) as Dictionary
+	stats = _deserialize_value((data["stats"] as Dictionary).duplicate(true)) as Dictionary
 	_emit_state_changed([
 		"current_scene_key",
 		"current_scene_path",
@@ -153,6 +166,54 @@ func _emit_state_changed(changed_keys: Array[String]) -> void:
 func _is_number(value: Variant) -> bool:
 	var value_type := typeof(value)
 	return value_type == TYPE_INT or value_type == TYPE_FLOAT
+
+func _default_stats() -> Dictionary:
+	return {
+		"hype": 0,
+		"discipline": 1,
+		"improv": 0,
+		"semester_week": 1
+	}
+
+func _serialize_value(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_DICTIONARY:
+			var serialized_dict := {}
+			for key in value.keys():
+				serialized_dict[key] = _serialize_value(value[key])
+			return serialized_dict
+		TYPE_ARRAY:
+			var serialized_array: Array = []
+			for item in value:
+				serialized_array.append(_serialize_value(item))
+			return serialized_array
+		TYPE_VECTOR2I:
+			var point := value as Vector2i
+			return {
+				SERIALIZED_TYPE_KEY: SERIALIZED_VECTOR2I,
+				"x": point.x,
+				"y": point.y
+			}
+		_:
+			return value
+
+func _deserialize_value(value: Variant) -> Variant:
+	match typeof(value):
+		TYPE_DICTIONARY:
+			var dict_value := value as Dictionary
+			if dict_value.get(SERIALIZED_TYPE_KEY, "") == SERIALIZED_VECTOR2I:
+				return Vector2i(int(dict_value.get("x", 0)), int(dict_value.get("y", 0)))
+			var deserialized_dict := {}
+			for key in dict_value.keys():
+				deserialized_dict[key] = _deserialize_value(dict_value[key])
+			return deserialized_dict
+		TYPE_ARRAY:
+			var deserialized_array: Array = []
+			for item in value:
+				deserialized_array.append(_deserialize_value(item))
+			return deserialized_array
+		_:
+			return value
 
 func _validate_state_dict(data: Dictionary) -> bool:
 	var required_keys := [

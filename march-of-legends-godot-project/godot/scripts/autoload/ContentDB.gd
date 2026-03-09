@@ -50,6 +50,13 @@ func get_formation_by_id(id: String) -> Dictionary:
 func get_formation(id: String) -> Dictionary:
 	return get_formation_by_id(id)
 
+func get_formations() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for formation in formations.values():
+		if typeof(formation) == TYPE_DICTIONARY:
+			out.append(formation)
+	return out
+
 func find_formation_by_pattern(pattern: Array[Vector2i]) -> Dictionary:
 	if pattern.is_empty():
 		_warn("pattern_lookup_empty", DOMAIN_FORMATIONS, {"requested_pattern": []})
@@ -137,7 +144,11 @@ func _validate_skill(item: Dictionary, index: int) -> bool:
 	return true
 
 func _validate_level(item: Dictionary, index: int) -> bool:
-	return _validate_required_string_fields(item, index, DOMAIN_LEVELS, ["id", "name", "type", "boss"])
+	if not _validate_required_string_fields(item, index, DOMAIN_LEVELS, ["id", "name", "type", "boss"]):
+		return false
+	if item.has("rhythm") and not _validate_rhythm_level(item["rhythm"], index):
+		return false
+	return true
 
 func _validate_formation(item: Dictionary, index: int) -> bool:
 	if not _validate_required_string_fields(item, index, DOMAIN_FORMATIONS, ["id", "name", "effect", "description"]):
@@ -196,6 +207,44 @@ func _pattern_to_json(pattern: Array[Vector2i]) -> Array[Dictionary]:
 	for point in pattern:
 		serialized.append({"x": point.x, "y": point.y})
 	return serialized
+
+func _validate_rhythm_level(raw_rhythm: Variant, index: int) -> bool:
+	if typeof(raw_rhythm) != TYPE_DICTIONARY:
+		_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm", "expected": "Dictionary"})
+		return false
+
+	var rhythm := raw_rhythm as Dictionary
+	var number_fields := ["approach_time", "miss_window", "perfect_window", "good_window"]
+	if not rhythm.has("lanes") or typeof(rhythm["lanes"]) != TYPE_INT or int(rhythm["lanes"]) <= 0:
+		_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.lanes", "expected": "positive int"})
+		return false
+	for field_name in number_fields:
+		if not rhythm.has(field_name) or not _is_number(rhythm[field_name]):
+			_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.%s" % field_name, "expected": "number"})
+			return false
+	if not rhythm.has("chart_notes") or typeof(rhythm["chart_notes"]) != TYPE_ARRAY:
+		_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.chart_notes", "expected": "Array"})
+		return false
+
+	for note_index in rhythm["chart_notes"].size():
+		var note = rhythm["chart_notes"][note_index]
+		if typeof(note) != TYPE_DICTIONARY:
+			_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.chart_notes[%d]" % note_index, "expected": "Dictionary"})
+			return false
+		if not note.has("lane") or typeof(note["lane"]) != TYPE_INT:
+			_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.chart_notes[%d].lane" % note_index, "expected": "int"})
+			return false
+		if int(note["lane"]) < 0 or int(note["lane"]) >= int(rhythm["lanes"]):
+			_error("field_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.chart_notes[%d].lane" % note_index, "reason": "out of range"})
+			return false
+		if not note.has("hit_time") or not _is_number(note["hit_time"]):
+			_error("field_type_invalid", DOMAIN_LEVELS, {"index": index, "field": "rhythm.chart_notes[%d].hit_time" % note_index, "expected": "number"})
+			return false
+	return true
+
+func _is_number(value: Variant) -> bool:
+	var value_type := typeof(value)
+	return value_type == TYPE_INT or value_type == TYPE_FLOAT
 
 func _warn(code: String, domain: String, context: Dictionary = {}) -> void:
 	push_warning("ContentDB warning [%s/%s]: %s" % [domain, code, JSON.stringify(context)])

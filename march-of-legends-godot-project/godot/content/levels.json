@@ -1,5 +1,41 @@
 [
   {"id": "campus_quad", "name": "Campus Quad", "type": "hub", "boss": "none"},
-  {"id": "practice_field", "name": "Practice Field", "type": "formation", "boss": "section_leaders"},
-  {"id": "pep_rally", "name": "Pep Rally Showdown", "type": "rhythm", "boss": "techno_band"}
+  {
+    "id": "practice_field",
+    "name": "Practice Field",
+    "type": "formation",
+    "boss": "section_leaders",
+    "required_formation_id": "line"
+  },
+  {
+    "id": "pep_rally",
+    "name": "Pep Rally Showdown",
+    "type": "rhythm",
+    "boss": "techno_band",
+    "rhythm": {
+      "lanes": 4,
+      "approach_time": 1.8,
+      "miss_window": 0.2,
+      "perfect_window": 0.06,
+      "good_window": 0.12,
+      "chart_notes": [
+        {"lane": 0, "hit_time": 1.5},
+        {"lane": 1, "hit_time": 2.0},
+        {"lane": 2, "hit_time": 2.5},
+        {"lane": 3, "hit_time": 3.0},
+        {"lane": 0, "hit_time": 3.35},
+        {"lane": 2, "hit_time": 3.8},
+        {"lane": 1, "hit_time": 4.2},
+        {"lane": 3, "hit_time": 4.7},
+        {"lane": 0, "hit_time": 5.2},
+        {"lane": 1, "hit_time": 5.65},
+        {"lane": 2, "hit_time": 6.1},
+        {"lane": 3, "hit_time": 6.55},
+        {"lane": 2, "hit_time": 7.0},
+        {"lane": 1, "hit_time": 7.35},
+        {"lane": 0, "hit_time": 7.8},
+        {"lane": 3, "hit_time": 8.35}
+      ]
+    }
+  }
 ]
