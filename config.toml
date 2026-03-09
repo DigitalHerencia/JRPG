@@ -1,0 +1,229 @@
+# Core model settings
+model                              = "gpt-5.4"
+model_provider                     = "openai"
+model_reasoning_effort             = "high"
+model_reasoning_summary            = "auto"
+model_supports_reasoning_summaries = true
+personality                        = "pragmatic"
+review_model                       = "gpt-5.3-codex"
+
+# Approval and sandbox
+approval_policy = "on-request"
+sandbox_mode    = "workspace-write"
+
+# Notifications
+notify = [
+]
+
+# Authentication settings
+chatgpt_base_url            = "https://chatgpt.com/backend-api/"
+cli_auth_credentials_store  = "file"
+mcp_oauth_credentials_store = "auto"
+
+# Project documentation
+project_doc_fallback_filenames = [
+    "AGENTS.md",
+    "PLANS.md",
+]
+project_doc_max_bytes = 32768
+project_root_markers = [
+    ".git",
+    "pnpm-lock.yaml",
+]
+
+# UI and behavior
+check_for_update_on_startup    = true
+disable_paste_burst            = false
+file_opener                    = "vscode"
+hide_agent_reasoning           = false
+show_raw_agent_reasoning       = false
+windows_wsl_setup_acknowledged = false
+
+# Web search
+web_search = "cached"
+
+# Workspace-write sandbox settings
+[sandbox_workspace_write]
+    exclude_slash_tmp = false
+    exclude_tmpdir_env_var = false
+    network_access = true
+    writable_roots = [
+    ]
+
+# Shell environment policy
+[shell_environment_policy]
+    exclude = [
+    ]
+    experimental_use_profile = true
+    ignore_default_excludes = true
+    include_only = [
+    ]
+    inherit = "all"
+    set = { CODEX_USE_DEDICATED_PROFILE = "1", CODEX_PS_PROFILE_PATH = "C:/Users/scree/.codex/profiles/codex.powershell_profile.ps1" }
+
+# History settings
+[history]
+    persistence = "save-all"
+
+# TUI settings
+[tui]
+    animations    = true
+    notifications = false
+    show_tooltips = true
+
+# Feedback settings
+[feedback]
+    enabled = true
+
+# Feature flags
+[features]
+    apply_patch_freeform    = true
+    apps                    = true
+    apps_mcp_gateway        = true
+    child_agents_md         = true
+    collaboration_modes     = true
+    multi_agent             = true
+    personality             = true
+    powershell_utf8         = true
+    remote_models           = true
+    request_rule            = true
+    runtime_metrics         = false
+    shell_snapshot          = true
+    shell_tool              = true
+    unified_exec            = true
+    use_linux_sandbox_bwrap = false
+
+# MCP servers
+[mcp_servers]
+
+    [mcp_servers.microsoft_docs]
+        enabled             = true
+        required            = false
+        startup_timeout_sec = 20.0
+        tool_timeout_sec    = 120.0
+        url                 = "https://learn.microsoft.com/api/mcp"
+
+    [mcp_servers.chrome_devtools]
+        args = [
+            "chrome-devtools-mcp@0.18.1",
+        ]
+        command             = "npx"
+        enabled             = true
+        required            = false
+        startup_timeout_sec = 20.0
+        tool_timeout_sec    = 120.0
+
+    [mcp_servers.github]
+        bearer_token_env_var = "GITHUB_TOKEN"
+        enabled             = true
+        required            = false
+        startup_timeout_sec = 20.0
+        tool_timeout_sec    = 120.0
+        url                 = "https://api.githubcopilot.com/mcp/"
+
+    [mcp_servers.vercel]
+        enabled             = true
+        required            = false
+        startup_timeout_sec = 20.0
+        tool_timeout_sec    = 120.0
+        url                 = "https://mcp.vercel.com"
+
+    [mcp_servers.playwright]
+        args = [
+            "@playwright/mcp@0.0.68",
+        ]
+        command             = "npx"
+        enabled             = true
+        required            = false
+        startup_timeout_sec = 20.0
+        tool_timeout_sec    = 120.0
+
+    [mcp_servers.neon]
+        bearer_token_env_var = "NEON_API_KEY"
+        enabled              = true
+        required             = false
+        startup_timeout_sec  = 20.0
+        tool_timeout_sec     = 120.0
+        url                  = "https://mcp.neon.tech/mcp"
+
+    [mcp_servers.clerk]
+        bearer_token_env_var = "AUTH_CLERK_SECRET_KEY"
+        enabled              = true
+        required             = false
+        startup_timeout_sec  = 20.0
+        tool_timeout_sec     = 120.0
+        url                  = "https://mcp.clerk.com/mcp"
+
+    [mcp_servers.shadcn]
+        args = [
+            "shadcn@3.8.5",
+            "mcp",
+        ]
+        command             = "npx"
+        enabled             = true
+        required            = false
+        startup_timeout_sec = 20.0
+        tool_timeout_sec    = 120.0
+
+    [mcp_servers.context7]
+        enabled              = true
+        required             = false
+        url                  = "https://mcp.context7.com/mcp"
+        bearer_token_env_var = "CONTEXT7_API_KEY"
+        startup_timeout_sec  = 20.0
+        tool_timeout_sec     = 120.0
+
+    [mcp_servers.next-devtools]
+        args = [
+            "-y",
+            "next-devtools-mcp@latest",
+        ]
+        command             = "npx"
+        enabled             = true
+        env                 = { SystemRoot = "C:\\Windows", PROGRAMFILES = "C:\\Program Files" }
+        required            = false
+        startup_timeout_ms  = 20000
+        tool_timeout_sec    = 120.0
+
+[mcp_servers.notion]
+url = "https://mcp.notion.com/mcp"
+
+# Apps and connectors
+[apps]
+
+    [apps.adobe_acrobat]
+        enabled = true
+
+    [apps.adobe_photoshop]
+        enabled = true
+
+    [apps.canva]
+        enabled = true
+
+    [apps.github]
+        enabled = true
+
+    [apps.huggingface]
+        enabled = true
+
+    [apps.notion]
+        enabled = true
+
+    [apps.vercel]
+        enabled = true
+
+# Project trust levels
+[projects]
+
+    [projects."D:/CtrlPlus"]
+        trust_level = "trusted"
+
+# OpenTelemetry settings
+[otel]
+    environment     = "dev"
+    exporter        = "none"
+    log_user_prompt = false
+    trace_exporter  = "none"
+
+[windows]
+sandbox = "unelevated"
